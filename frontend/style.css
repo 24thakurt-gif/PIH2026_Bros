@@ -850,7 +850,7 @@ body::after {
 }
 
 .modal {
-    display: none;
+    display: none !important;
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.25);
@@ -862,7 +862,7 @@ body::after {
 }
 
 .modal.active {
-    display: flex;
+    display: flex !important;
 }
 
 .modal > .modal-content {

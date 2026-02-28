@@ -225,58 +225,6 @@
             </div>
         </div>
 
-        <!-- Upload Document Modal -->
-        <div id="modalUploadDoc" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3><i class="fas fa-cloud-arrow-up"></i> Upload Document</h3>
-                    <button id="closeUploadModal" class="modal-close"><i class="fas fa-xmark"></i></button>
-                </div>
-                <form id="formUploadDoc">
-                    <div class="form-group">
-                        <label>Document Name</label>
-                        <input type="text" id="docName" required placeholder="e.g. Blood Test Report">
-                    </div>
-                    <div class="form-group">
-                        <label>Category</label>
-                        <select id="docCategory" required>
-                            <option value="">Select category...</option>
-                            <option value="prescription">Prescription</option>
-                            <option value="lab_report">Lab Report</option>
-                            <option value="discharge">Discharge Summary</option>
-                            <option value="imaging">Imaging (X-ray, MRI)</option>
-                            <option value="insurance">Insurance</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Date</label>
-                        <input type="date" id="docDate" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Notes (optional)</label>
-                        <textarea id="docNotes" placeholder="Any additional notes..."></textarea>
-                    </div>
-                    <div id="fileUploadArea" class="file-upload-area">
-                        <i class="fas fa-cloud-arrow-up"></i>
-                        <p>Click or drag a file here</p>
-                        <small>PDF, Images · Max 5MB</small>
-                        <input type="file" id="docFile" accept=".pdf,.jpg,.jpeg,.png,.gif" style="display:none;">
-                    </div>
-                    <div id="fileSelected" class="file-selected" style="display:none;">
-                        <i class="fas fa-file"></i>
-                        <span id="fileName"></span>
-                        <button type="button" id="removeFile" class="btn-icon"><i class="fas fa-xmark"></i></button>
-                    </div>
-                    <div class="modal-actions">
-                        <button type="button" id="cancelUploadDoc" class="btn btn-secondary">Cancel</button>
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-cloud-arrow-up"></i>
-                            Upload</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
         <!-- ========== MEDICINE TIMER ========== -->
         <div id="page-medicines" class="page">
             <div class="page-header">
@@ -294,63 +242,6 @@
                     <button id="btnAddMedEmpty" class="btn btn-primary"><i class="fas fa-plus"></i> Add
                         Medicine</button>
                 </div>
-            </div>
-        </div>
-
-        <!-- Add Medicine Modal -->
-        <div id="modalAddMed" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3><i class="fas fa-pills"></i> Add Medicine</h3>
-                    <button id="closeAddMedModal" class="modal-close"><i class="fas fa-xmark"></i></button>
-                </div>
-                <form id="formAddMed">
-                    <div class="form-group">
-                        <label>Medicine Name</label>
-                        <input type="text" id="medName" required placeholder="e.g. Paracetamol">
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Dosage</label>
-                            <input type="text" id="medDosage" required placeholder="e.g. 500mg">
-                        </div>
-                        <div class="form-group">
-                            <label>Frequency (per day)</label>
-                            <select id="medFrequency" required>
-                                <option value="">Select...</option>
-                                <option value="1">Once daily</option>
-                                <option value="2">Twice daily</option>
-                                <option value="3">Three times</option>
-                                <option value="4">Four times</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div id="scheduleTimes" class="schedule-times"></div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Total Quantity</label>
-                            <input type="number" id="medQuantity" required placeholder="30" min="1">
-                        </div>
-                        <div class="form-group">
-                            <label>Instruction</label>
-                            <select id="medInstruction">
-                                <option value="anytime">Any time</option>
-                                <option value="before_food">Before Food</option>
-                                <option value="after_food">After Food</option>
-                                <option value="with_food">With Food</option>
-                                <option value="empty_stomach">Empty Stomach</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Side Effects (optional)</label>
-                        <input type="text" id="medSideEffects" placeholder="e.g. May cause drowsiness">
-                    </div>
-                    <div class="modal-actions">
-                        <button type="button" id="cancelAddMed" class="btn btn-secondary">Cancel</button>
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Add Medicine</button>
-                    </div>
-                </form>
             </div>
         </div>
 
@@ -390,61 +281,6 @@
                     <button id="btnAddCheckupEmpty" class="btn btn-primary"><i class="fas fa-plus"></i> Add
                         Checkup</button>
                 </div>
-            </div>
-        </div>
-
-        <!-- Add Checkup Modal -->
-        <div id="modalAddCheckup" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3><i class="fas fa-calendar-check"></i> Add Checkup</h3>
-                    <button id="closeCheckupModal" class="modal-close"><i class="fas fa-xmark"></i></button>
-                </div>
-                <form id="formAddCheckup">
-                    <div class="form-group">
-                        <label>Checkup Type</label>
-                        <select id="checkupType" required>
-                            <option value="">Select type...</option>
-                            <option value="general">General Checkup</option>
-                            <option value="dental">Dental</option>
-                            <option value="eye">Eye / Vision</option>
-                            <option value="cardio">Cardiology</option>
-                            <option value="derma">Dermatology</option>
-                            <option value="ortho">Orthopedic</option>
-                            <option value="gynec">Gynecology</option>
-                            <option value="ent">ENT</option>
-                            <option value="neuro">Neurology</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Doctor Name (optional)</label>
-                        <input type="text" id="checkupDoctor" placeholder="e.g. Dr. Sharma">
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Last Visit Date</label>
-                            <input type="date" id="checkupDate" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Repeat Interval (days)</label>
-                            <select id="checkupInterval">
-                                <option value="30">Monthly (30 days)</option>
-                                <option value="90">Quarterly (90 days)</option>
-                                <option value="180" selected>6 Months</option>
-                                <option value="365">Yearly</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Notes (optional)</label>
-                        <textarea id="checkupNotes" placeholder="Any notes..."></textarea>
-                    </div>
-                    <div class="modal-actions">
-                        <button type="button" id="cancelCheckup" class="btn btn-secondary">Cancel</button>
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Add Checkup</button>
-                    </div>
-                </form>
             </div>
         </div>
 
@@ -511,6 +347,171 @@
 
     </main>
 
+    <!-- ==================== MODALS (outside main) ==================== -->
+
+    <!-- Upload Document Modal -->
+    <div id="modalUploadDoc" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-cloud-arrow-up"></i> Upload Document</h3>
+                <button id="closeUploadModal" class="modal-close"><i class="fas fa-xmark"></i></button>
+            </div>
+            <form id="formUploadDoc">
+                <div class="form-group">
+                    <label>Document Name</label>
+                    <input type="text" id="docName" required placeholder="e.g. Blood Test Report">
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="docCategory" required>
+                        <option value="">Select category...</option>
+                        <option value="prescription">Prescription</option>
+                        <option value="lab_report">Lab Report</option>
+                        <option value="discharge">Discharge Summary</option>
+                        <option value="imaging">Imaging (X-ray, MRI)</option>
+                        <option value="insurance">Insurance</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="docDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Notes (optional)</label>
+                    <textarea id="docNotes" placeholder="Any additional notes..."></textarea>
+                </div>
+                <div id="fileUploadArea" class="file-upload-area">
+                    <i class="fas fa-cloud-arrow-up"></i>
+                    <p>Click or drag a file here</p>
+                    <small>PDF, Images · Max 5MB</small>
+                    <input type="file" id="docFile" accept=".pdf,.jpg,.jpeg,.png,.gif" style="display:none;">
+                </div>
+                <div id="fileSelected" class="file-selected" style="display:none;">
+                    <i class="fas fa-file"></i>
+                    <span id="fileName"></span>
+                    <button type="button" id="removeFile" class="btn-icon"><i class="fas fa-xmark"></i></button>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancelUploadDoc" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-cloud-arrow-up"></i> Upload</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Medicine Modal -->
+    <div id="modalAddMed" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-pills"></i> Add Medicine</h3>
+                <button id="closeAddMedModal" class="modal-close"><i class="fas fa-xmark"></i></button>
+            </div>
+            <form id="formAddMed">
+                <div class="form-group">
+                    <label>Medicine Name</label>
+                    <input type="text" id="medName" required placeholder="e.g. Paracetamol">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Dosage</label>
+                        <input type="text" id="medDosage" required placeholder="e.g. 500mg">
+                    </div>
+                    <div class="form-group">
+                        <label>Frequency (per day)</label>
+                        <select id="medFrequency" required>
+                            <option value="">Select...</option>
+                            <option value="1">Once daily</option>
+                            <option value="2">Twice daily</option>
+                            <option value="3">Three times</option>
+                            <option value="4">Four times</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="scheduleTimes" class="schedule-times"></div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Total Quantity</label>
+                        <input type="number" id="medQuantity" required placeholder="30" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Instruction</label>
+                        <select id="medInstruction">
+                            <option value="anytime">Any time</option>
+                            <option value="before_food">Before Food</option>
+                            <option value="after_food">After Food</option>
+                            <option value="with_food">With Food</option>
+                            <option value="empty_stomach">Empty Stomach</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Side Effects (optional)</label>
+                    <input type="text" id="medSideEffects" placeholder="e.g. May cause drowsiness">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancelAddMed" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Add Medicine</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Checkup Modal -->
+    <div id="modalAddCheckup" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-calendar-check"></i> Add Checkup</h3>
+                <button id="closeCheckupModal" class="modal-close"><i class="fas fa-xmark"></i></button>
+            </div>
+            <form id="formAddCheckup">
+                <div class="form-group">
+                    <label>Checkup Type</label>
+                    <select id="checkupType" required>
+                        <option value="">Select type...</option>
+                        <option value="general">General Checkup</option>
+                        <option value="dental">Dental</option>
+                        <option value="eye">Eye / Vision</option>
+                        <option value="cardio">Cardiology</option>
+                        <option value="derma">Dermatology</option>
+                        <option value="ortho">Orthopedic</option>
+                        <option value="gynec">Gynecology</option>
+                        <option value="ent">ENT</option>
+                        <option value="neuro">Neurology</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Doctor Name (optional)</label>
+                    <input type="text" id="checkupDoctor" placeholder="e.g. Dr. Sharma">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Last Visit Date</label>
+                        <input type="date" id="checkupDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Repeat Interval (days)</label>
+                        <select id="checkupInterval">
+                            <option value="30">Monthly (30 days)</option>
+                            <option value="90">Quarterly (90 days)</option>
+                            <option value="180" selected>6 Months</option>
+                            <option value="365">Yearly</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Notes (optional)</label>
+                    <textarea id="checkupNotes" placeholder="Any notes..."></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancelCheckup" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Add Checkup</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- ==================== TOAST CONTAINER ==================== -->
     <div id="toastContainer" class="toast-container"></div>
 
@@ -528,7 +529,8 @@
         </div>
         <div id="medbotBody" class="medbot-body">
             <div class="medbot-msg bot">
-                <div class="medbot-msg-content">
+                <div class="medbot-msg-avatar"><i class="fas fa-robot"></i></div>
+                <div class="medbot-msg-bubble">
                     👋 Hi! I'm <strong>MedBot</strong>. Just paste your prescription or appointment details as a
                     paragraph, and I'll add them for you automatically!
                     <br><br><strong>Example:</strong><br>
@@ -537,8 +539,15 @@
                 </div>
             </div>
         </div>
-        <div id="medbotPreview" class="medbot-preview"></div>
-        <div class="medbot-input-area">
+        <div id="medbotPreview" class="medbot-preview" style="display:none;">
+            <div id="medbotPreviewItems" class="medbot-preview-items"></div>
+            <div class="medbot-preview-actions">
+                <button id="medbotEditBack" class="btn btn-secondary btn-sm"><i class="fas fa-pen"></i> Edit</button>
+                <button id="medbotCancel" class="btn btn-secondary btn-sm"><i class="fas fa-xmark"></i> Cancel</button>
+                <button id="medbotConfirm" class="btn btn-primary btn-sm"><i class="fas fa-check"></i> Add All</button>
+            </div>
+        </div>
+        <div id="medbotInputArea" class="medbot-input-area">
             <textarea id="medbotInput" placeholder="Paste your prescription or appointment details here..."
                 rows="2"></textarea>
             <button id="medbotSend" class="medbot-send"><i class="fas fa-paper-plane"></i></button>
