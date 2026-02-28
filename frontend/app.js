@@ -1220,6 +1220,81 @@
 
     // Track which reminders already fired so we don't double-dose
     const firedReminders = new Set();
+    const pendingReminders = []; // queue of reminders waiting for user action
+
+    // Top banner elements
+    const reminderBanner = document.getElementById('medReminderBanner');
+    const reminderBannerTitle = document.getElementById('reminderBannerTitle');
+    const reminderBannerMsg = document.getElementById('reminderBannerMsg');
+    const reminderTakeDose = document.getElementById('reminderTakeDose');
+    const reminderDismiss = document.getElementById('reminderDismiss');
+
+    function showReminderBanner(med, medId) {
+        const remaining = med.totalQuantity - med.dosesTaken;
+        reminderBannerTitle.textContent = `💊 Time to take ${med.name}`;
+        reminderBannerMsg.textContent = `${med.dosage} — ${formatInstruction(med.instruction)} • ${remaining} doses left`;
+        reminderBanner.style.display = '';
+        reminderBanner.classList.remove('hiding');
+
+        // Play a short alert sound
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.frequency.value = 880;
+            gain.gain.value = 0.15;
+            osc.start();
+            osc.stop(ctx.currentTime + 0.2);
+            setTimeout(() => {
+                const osc2 = ctx.createOscillator();
+                osc2.connect(gain);
+                osc2.frequency.value = 1100;
+                osc2.start();
+                osc2.stop(ctx.currentTime + 0.2);
+            }, 250);
+        } catch(e) {}
+
+        // Store current reminder context for the Take Dose button
+        reminderTakeDose.onclick = async () => {
+            reminderTakeDose.disabled = true;
+            reminderTakeDose.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Taking...';
+            try {
+                const updated = await API.takeDose(medId);
+                const newRemaining = updated.totalQuantity - updated.dosesTaken;
+                showToast('success', '💊 Dose Recorded', `${med.name}: ${newRemaining} doses remaining.`);
+                renderStock();
+                renderMedicines();
+                renderDashboard();
+            } catch {
+                showToast('error', 'Error', 'Could not record dose. Try from Stock page.');
+            }
+            reminderTakeDose.disabled = false;
+            reminderTakeDose.innerHTML = '<i class="fas fa-check"></i> Take Dose';
+            hideReminderBanner();
+            // Show next pending reminder if any
+            showNextPendingReminder();
+        };
+    }
+
+    function hideReminderBanner() {
+        reminderBanner.classList.add('hiding');
+        setTimeout(() => { reminderBanner.style.display = 'none'; }, 300);
+    }
+
+    reminderDismiss.addEventListener('click', () => {
+        hideReminderBanner();
+        // Show next pending reminder if any
+        setTimeout(showNextPendingReminder, 350);
+    });
+
+    function showNextPendingReminder() {
+        if (pendingReminders.length > 0) {
+            const next = pendingReminders.shift();
+            showReminderBanner(next.med, next.medId);
+        }
+    }
 
     function checkMedicineReminders() {
         const meds = loadData(STORAGE_KEYS.medicines);
@@ -1236,24 +1311,22 @@
                     firedReminders.add(key);
                     const remaining = med.totalQuantity - med.dosesTaken;
                     if (remaining <= 0) {
-                        showToast('error', '⚠️ Out of Stock', `${med.name} is out of stock. Please restock before taking a dose.`);
+                        showToast('error', '⚠️ Out of Stock', `${med.name} is out of stock. Please restock.`);
                         return;
                     }
 
-                    // Auto-take dose from stock when reminder fires
-                    API.takeDose(medId).then(updated => {
-                        const newRemaining = updated.totalQuantity - updated.dosesTaken;
-                        showToast('success', '💊 Dose Taken', `${med.name} (${med.dosage}) — ${newRemaining} doses remaining`);
-                        renderStock();
-                        renderMedicines();
-                        renderDashboard();
-                    }).catch(() => {
-                        showToast('info', '💊 Medicine Reminder', `Time to take ${med.name} (${med.dosage}) — ${formatInstruction(med.instruction)}`);
-                    });
+                    // Show top banner notification
+                    if (reminderBanner.style.display !== 'none' && reminderBanner.style.display !== '') {
+                        // Banner already showing another med, queue this one
+                        pendingReminders.push({ med, medId });
+                    } else {
+                        showReminderBanner(med, medId);
+                    }
 
+                    // Also show browser notification
                     if ('Notification' in window && Notification.permission === 'granted') {
-                        new Notification('💊 MedVault — Dose Taken', {
-                            body: `${med.name} (${med.dosage}) dose recorded.\n${remaining - 1} doses remaining.`,
+                        new Notification('💊 MedVault — Medicine Reminder', {
+                            body: `Time to take ${med.name} (${med.dosage})\n${remaining} doses remaining.`,
                             icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💊</text></svg>'
                         });
                     }
