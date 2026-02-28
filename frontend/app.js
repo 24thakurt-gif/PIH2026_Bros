@@ -398,12 +398,12 @@
         if (docs.length === 0) {
             recentDocsContainer.innerHTML = '<div class="empty-state small"><i class="fas fa-folder-open"></i><p>No documents uploaded yet</p></div>';
         } else {
-            const recent = [...docs].sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate)).slice(0, 4);
+            const recent = [...docs].sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date)).slice(0, 4);
             recentDocsContainer.innerHTML = recent.map(d => `
                 <div class="dash-item">
                     <div class="dash-item-icon doc"><i class="fas fa-file-medical"></i></div>
                     <div class="dash-item-info">
-                        <div class="dash-item-title">${escHtml(d.name)}</div>
+                        <div class="dash-item-title">${escHtml(d.title || d.name)}</div>
                         <div class="dash-item-sub">${getCategoryLabel(d.category)} · ${formatDate(d.date)}</div>
                     </div>
                 </div>
@@ -540,7 +540,7 @@
             filtered = filtered.filter(d => d.category === activeDocFilter);
         }
         if (docSearchQuery) {
-            filtered = filtered.filter(d => d.name.toLowerCase().includes(docSearchQuery) || (d.notes && d.notes.toLowerCase().includes(docSearchQuery)));
+            filtered = filtered.filter(d => (d.title || d.name || '').toLowerCase().includes(docSearchQuery) || (d.notes && d.notes.toLowerCase().includes(docSearchQuery)));
         }
 
         if (docs.length === 0) {
@@ -556,16 +556,16 @@
         }
 
         empty.style.display = 'none';
-        grid.innerHTML = filtered.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate)).map(doc => `
+        grid.innerHTML = filtered.sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date)).map(doc => `
             <div class="doc-card" data-id="${doc.id}">
                 <div class="doc-card-top">
                     <span class="doc-type-badge ${doc.category}">${getCategoryLabel(doc.category)}</span>
                     <div class="doc-card-actions">
-                        ${doc.fileData ? `<button class="btn-icon" title="View file" onclick="window.MedVault.viewDoc('${doc.id}')"><i class="fas fa-eye"></i></button>` : ''}
+                        ${doc.fileName ? `<button class="btn-icon" title="View file" onclick="window.MedVault.viewDoc('${doc.id}')"><i class="fas fa-eye"></i></button>` : ''}
                         <button class="btn-icon" title="Delete" onclick="window.MedVault.deleteDoc('${doc.id}')"><i class="fas fa-trash-can"></i></button>
                     </div>
                 </div>
-                <h4>${escHtml(doc.name)}</h4>
+                <h4>${escHtml(doc.title || doc.name)}</h4>
                 <div class="doc-meta">
                     <span><i class="fas fa-calendar"></i> ${formatDate(doc.date)}</span>
                     ${doc.fileName ? `<span><i class="fas fa-paperclip"></i> ${escHtml(doc.fileName)}</span>` : ''}
