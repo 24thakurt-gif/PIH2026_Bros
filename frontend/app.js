@@ -1419,59 +1419,62 @@
         addBotMessage('❌ Cancelled. You can try again or modify your text.', 'bot');
     });
 
-    medbotConfirm.addEventListener('click', () => {
+    medbotConfirm.addEventListener('click', async () => {
         let medsAdded = 0, checkupsAdded = 0;
 
-        parsedItems.forEach(item => {
-            if (item.type === 'medicine') {
-                const meds = loadData(STORAGE_KEYS.medicines);
-                meds.push({
-                    id: generateId(),
-                    name: item.name,
-                    dosage: item.dosage,
-                    frequency: item.frequency,
-                    totalQuantity: item.quantity,
-                    dosesTaken: 0,
-                    instruction: item.instruction,
-                    sideEffects: '',
-                    times: item.times,
-                    createdAt: new Date().toISOString()
-                });
-                saveData(STORAGE_KEYS.medicines, meds);
-                medsAdded++;
-            } else if (item.type === 'checkup') {
-                const checkups = loadData(STORAGE_KEYS.checkups);
-                checkups.push({
-                    id: generateId(),
-                    type: item.checkupType,
-                    doctor: item.doctor,
-                    lastDate: item.date,
-                    interval: item.interval || 180,
-                    notes: 'Added via MedBot',
-                    createdAt: new Date().toISOString()
-                });
-                saveData(STORAGE_KEYS.checkups, checkups);
-                checkupsAdded++;
+        medbotConfirm.disabled = true;
+        medbotConfirm.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+        try {
+            for (const item of parsedItems) {
+                if (item.type === 'medicine') {
+                    await API.addMedicine({
+                        name: item.name,
+                        dosage: item.dosage,
+                        frequency: item.frequency,
+                        totalQuantity: item.quantity,
+                        dosesTaken: 0,
+                        instruction: item.instruction,
+                        sideEffects: '',
+                        times: item.times
+                    });
+                    medsAdded++;
+                } else if (item.type === 'checkup') {
+                    await API.addCheckup({
+                        type: item.checkupType,
+                        doctor: item.doctor,
+                        lastDate: item.date,
+                        interval: item.interval || 180,
+                        notes: 'Added via MedBot'
+                    });
+                    checkupsAdded++;
+                }
             }
-        });
 
-        // Refresh views
-        renderMedicines();
-        renderStock();
-        renderCheckups();
-        renderDashboard();
+            // Refresh views
+            renderMedicines();
+            renderStock();
+            renderCheckups();
+            renderDashboard();
 
-        medbotPreview.style.display = 'none';
-        medbotInputArea.style.display = '';
-        parsedItems = [];
+            medbotPreview.style.display = 'none';
+            medbotInputArea.style.display = '';
+            parsedItems = [];
 
-        let msg = '🎉 Done! Added ';
-        const parts = [];
-        if (medsAdded) parts.push(`${medsAdded} medicine${medsAdded > 1 ? 's' : ''}`);
-        if (checkupsAdded) parts.push(`${checkupsAdded} appointment${checkupsAdded > 1 ? 's' : ''}`);
-        msg += parts.join(' and ') + ' successfully!';
-        addBotMessage(msg, 'bot');
-        showToast('success', 'MedBot', msg.replace(/🎉 /, ''));
+            let msg = '🎉 Done! Added ';
+            const parts = [];
+            if (medsAdded) parts.push(`${medsAdded} medicine${medsAdded > 1 ? 's' : ''}`);
+            if (checkupsAdded) parts.push(`${checkupsAdded} appointment${checkupsAdded > 1 ? 's' : ''}`);
+            msg += parts.join(' and ') + ' successfully!';
+            addBotMessage(msg, 'bot');
+            showToast('success', 'MedBot', msg.replace(/🎉 /, ''));
+        } catch (err) {
+            addBotMessage('❌ Error saving: ' + err.message + '. Please try again.', 'bot');
+            showToast('error', 'MedBot Error', err.message);
+        } finally {
+            medbotConfirm.disabled = false;
+            medbotConfirm.innerHTML = '<i class="fas fa-check"></i> Add All';
+        }
     });
 
     // ==================== TEXT PARSER ENGINE ====================
