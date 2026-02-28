@@ -727,16 +727,17 @@
     function renderStock() {
         const meds = loadData(STORAGE_KEYS.medicines);
         const list = document.getElementById('stockList');
-        const empty = document.getElementById('emptyStock');
 
         if (meds.length === 0) {
-            list.innerHTML = '';
-            list.appendChild(empty);
-            empty.style.display = '';
+            list.innerHTML = `<div id="emptyStock" class="empty-state">
+                <i class="fas fa-boxes-stacked"></i>
+                <h3>No Medicines to Track</h3>
+                <p>Add medicines in the Medicine Timer section first.</p>
+                <button class="btn btn-primary" data-goto="medicines"><i class="fas fa-plus"></i> Add Medicine</button>
+            </div>`;
             return;
         }
 
-        empty.style.display = 'none';
         list.innerHTML = meds.map(med => {
             const remaining = med.totalQuantity - med.dosesTaken;
             const percent = Math.max(0, (remaining / med.totalQuantity) * 100);
@@ -1217,6 +1218,9 @@
         }
     }
 
+    // Track which reminders already fired so we don't double-dose
+    const firedReminders = new Set();
+
     function checkMedicineReminders() {
         const meds = loadData(STORAGE_KEYS.medicines);
         if (meds.length === 0) return;
@@ -1225,16 +1229,31 @@
         const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
         meds.forEach(med => {
+            const medId = med._id || med.id;
             (med.times || []).forEach(time => {
-                if (time === currentTime) {
+                const key = `${medId}_${time}_${now.toDateString()}`;
+                if (time === currentTime && !firedReminders.has(key)) {
+                    firedReminders.add(key);
                     const remaining = med.totalQuantity - med.dosesTaken;
-                    if (remaining <= 0) return;
+                    if (remaining <= 0) {
+                        showToast('error', '⚠️ Out of Stock', `${med.name} is out of stock. Please restock before taking a dose.`);
+                        return;
+                    }
 
-                    showToast('info', '💊 Medicine Reminder', `Time to take ${med.name} (${med.dosage}) — ${formatInstruction(med.instruction)}`);
+                    // Auto-take dose from stock when reminder fires
+                    API.takeDose(medId).then(updated => {
+                        const newRemaining = updated.totalQuantity - updated.dosesTaken;
+                        showToast('success', '💊 Dose Taken', `${med.name} (${med.dosage}) — ${newRemaining} doses remaining`);
+                        renderStock();
+                        renderMedicines();
+                        renderDashboard();
+                    }).catch(() => {
+                        showToast('info', '💊 Medicine Reminder', `Time to take ${med.name} (${med.dosage}) — ${formatInstruction(med.instruction)}`);
+                    });
 
                     if ('Notification' in window && Notification.permission === 'granted') {
-                        new Notification('💊 MedVault Reminder', {
-                            body: `Time to take ${med.name} (${med.dosage})\n${formatInstruction(med.instruction)}`,
+                        new Notification('💊 MedVault — Dose Taken', {
+                            body: `${med.name} (${med.dosage}) dose recorded.\n${remaining - 1} doses remaining.`,
                             icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💊</text></svg>'
                         });
                     }
