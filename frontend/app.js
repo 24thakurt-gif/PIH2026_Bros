@@ -564,6 +564,7 @@
                     <span class="doc-type-badge ${doc.category}">${getCategoryLabel(doc.category)}</span>
                     <div class="doc-card-actions">
                         ${doc.fileName ? `<button class="btn-icon" title="View file" onclick="window.MedVault.viewDoc('${doc.id}')"><i class="fas fa-eye"></i></button>` : ''}
+                        <button class="btn-icon" title="Edit" onclick="window.MedVault.editDoc('${doc.id}')"><i class="fas fa-pen-to-square"></i></button>
                         <button class="btn-icon" title="Delete" onclick="window.MedVault.deleteDoc('${doc.id}')"><i class="fas fa-trash-can"></i></button>
                     </div>
                 </div>
@@ -605,6 +606,44 @@
             showToast('error', 'Error', err.message);
         }
     };
+
+    // ---- Edit Document ----
+    const modalEditDoc = document.getElementById('modalEditDoc');
+    const formEditDoc = document.getElementById('formEditDoc');
+    document.getElementById('closeEditDocModal').addEventListener('click', () => modalEditDoc.style.display = 'none');
+    document.getElementById('cancelEditDoc').addEventListener('click', () => modalEditDoc.style.display = 'none');
+    modalEditDoc.addEventListener('click', (e) => { if (e.target === modalEditDoc) modalEditDoc.style.display = 'none'; });
+
+    window.MedVault.editDoc = function (id) {
+        const docs = loadData(STORAGE_KEYS.documents);
+        const doc = docs.find(d => (d._id || d.id) === id);
+        if (!doc) return;
+        document.getElementById('editDocId').value = id;
+        document.getElementById('editDocName').value = doc.title || doc.name || '';
+        document.getElementById('editDocCategory').value = doc.category || 'other';
+        document.getElementById('editDocDate').value = doc.date || '';
+        document.getElementById('editDocNotes').value = doc.notes || '';
+        modalEditDoc.style.display = 'flex';
+    };
+
+    formEditDoc.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('editDocId').value;
+        const title = document.getElementById('editDocName').value.trim();
+        const category = document.getElementById('editDocCategory').value;
+        const date = document.getElementById('editDocDate').value;
+        const notes = document.getElementById('editDocNotes').value.trim();
+        if (!title || !category || !date) return;
+        try {
+            await API.updateDocument(id, { title, category, date, notes });
+            modalEditDoc.style.display = 'none';
+            renderDocuments();
+            renderDashboard();
+            showToast('success', 'Document Updated', `"${title}" has been updated.`);
+        } catch (err) {
+            showToast('error', 'Error', err.message);
+        }
+    });
 
     // ==================== MEDICINE TIMER ====================
     const btnAddMed = document.getElementById('btnAddMed');
@@ -694,6 +733,7 @@
                 <div class="med-card-header">
                     <h4><i class="fas fa-capsules"></i> ${escHtml(med.name)}</h4>
                     <div>
+                        <button class="btn-icon" title="Edit" onclick="window.MedVault.editMed('${med.id}')"><i class="fas fa-pen-to-square"></i></button>
                         <button class="btn-icon" title="Delete" onclick="window.MedVault.deleteMed('${med.id}')"><i class="fas fa-trash-can"></i></button>
                     </div>
                 </div>
@@ -722,6 +762,76 @@
             showToast('error', 'Error', err.message);
         }
     };
+
+    // ---- Edit Medicine (restricted: can't change name) ----
+    const modalEditMed = document.getElementById('modalEditMed');
+    const formEditMed = document.getElementById('formEditMed');
+    const editMedFrequency = document.getElementById('editMedFrequency');
+    const editScheduleTimes = document.getElementById('editScheduleTimes');
+
+    document.getElementById('closeEditMedModal').addEventListener('click', () => modalEditMed.style.display = 'none');
+    document.getElementById('cancelEditMed').addEventListener('click', () => modalEditMed.style.display = 'none');
+    modalEditMed.addEventListener('click', (e) => { if (e.target === modalEditMed) modalEditMed.style.display = 'none'; });
+
+    editMedFrequency.addEventListener('change', () => {
+        const count = parseInt(editMedFrequency.value) || 0;
+        const existing = Array.from(editScheduleTimes.querySelectorAll('input[type="time"]')).map(i => i.value);
+        editScheduleTimes.innerHTML = '';
+        for (let i = 0; i < count; i++) {
+            const input = document.createElement('input');
+            input.type = 'time';
+            input.required = true;
+            input.value = existing[i] || '';
+            editScheduleTimes.appendChild(input);
+        }
+    });
+
+    window.MedVault.editMed = function (id) {
+        const meds = loadData(STORAGE_KEYS.medicines);
+        const med = meds.find(m => (m._id || m.id) === id);
+        if (!med) return;
+        document.getElementById('editMedId').value = id;
+        document.getElementById('editMedName').value = med.name;
+        document.getElementById('editMedDosage').value = med.dosage || '';
+        editMedFrequency.value = med.frequency || 1;
+        document.getElementById('editMedQuantity').value = med.totalQuantity || 30;
+        document.getElementById('editMedInstruction').value = med.instruction || 'anytime';
+        document.getElementById('editMedSideEffects').value = med.sideEffects || '';
+        // Populate time inputs
+        const times = med.times || [];
+        editScheduleTimes.innerHTML = '';
+        const count = parseInt(editMedFrequency.value) || times.length || 1;
+        for (let i = 0; i < count; i++) {
+            const input = document.createElement('input');
+            input.type = 'time';
+            input.required = true;
+            input.value = times[i] || '';
+            editScheduleTimes.appendChild(input);
+        }
+        modalEditMed.style.display = 'flex';
+    };
+
+    formEditMed.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('editMedId').value;
+        const dosage = document.getElementById('editMedDosage').value.trim();
+        const frequency = parseInt(editMedFrequency.value);
+        const totalQuantity = parseInt(document.getElementById('editMedQuantity').value);
+        const instruction = document.getElementById('editMedInstruction').value;
+        const sideEffects = document.getElementById('editMedSideEffects').value.trim();
+        const times = Array.from(editScheduleTimes.querySelectorAll('input[type="time"]')).map(i => i.value);
+        if (!dosage || !frequency || !totalQuantity || times.length === 0) return;
+        try {
+            await API.updateMedicine(id, { dosage, frequency, totalQuantity, instruction, sideEffects, times });
+            modalEditMed.style.display = 'none';
+            renderMedicines();
+            renderStock();
+            renderDashboard();
+            showToast('success', 'Medicine Updated', 'Schedule and dosage have been updated.');
+        } catch (err) {
+            showToast('error', 'Error', err.message);
+        }
+    });
 
     // ==================== STOCK ALERT ====================
     function renderStock() {
@@ -905,6 +1015,7 @@
                     <h4>${getCheckupEmoji(c.type)} ${getCheckupLabel(c.type)}</h4>
                     <div style="display:flex; gap:8px; align-items:center;">
                         <span class="checkup-due ${dueClass}">${dueLabel}</span>
+                        <button class="btn-icon" title="Edit" onclick="window.MedVault.editCheckup('${c.id}')"><i class="fas fa-pen-to-square"></i></button>
                         <button class="btn-icon" title="Delete" onclick="window.MedVault.deleteCheckup('${c.id}')"><i class="fas fa-trash-can"></i></button>
                     </div>
                 </div>
@@ -931,6 +1042,46 @@
             showToast('error', 'Error', err.message);
         }
     };
+
+    // ---- Edit Checkup ----
+    const modalEditCheckup = document.getElementById('modalEditCheckup');
+    const formEditCheckup = document.getElementById('formEditCheckup');
+    document.getElementById('closeEditCheckupModal').addEventListener('click', () => modalEditCheckup.style.display = 'none');
+    document.getElementById('cancelEditCheckup').addEventListener('click', () => modalEditCheckup.style.display = 'none');
+    modalEditCheckup.addEventListener('click', (e) => { if (e.target === modalEditCheckup) modalEditCheckup.style.display = 'none'; });
+
+    window.MedVault.editCheckup = function (id) {
+        const checkups = loadData(STORAGE_KEYS.checkups);
+        const c = checkups.find(ch => (ch._id || ch.id) === id);
+        if (!c) return;
+        document.getElementById('editCheckupId').value = id;
+        document.getElementById('editCheckupType').value = c.type || 'general';
+        document.getElementById('editCheckupDoctor').value = c.doctor || '';
+        document.getElementById('editCheckupDate').value = c.lastDate || '';
+        document.getElementById('editCheckupInterval').value = c.interval || 180;
+        document.getElementById('editCheckupNotes').value = c.notes || '';
+        modalEditCheckup.style.display = 'flex';
+    };
+
+    formEditCheckup.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('editCheckupId').value;
+        const type = document.getElementById('editCheckupType').value;
+        const doctor = document.getElementById('editCheckupDoctor').value.trim();
+        const lastDate = document.getElementById('editCheckupDate').value;
+        const interval = parseInt(document.getElementById('editCheckupInterval').value);
+        const notes = document.getElementById('editCheckupNotes').value.trim();
+        if (!type || !lastDate) return;
+        try {
+            await API.updateCheckup(id, { type, doctor, lastDate, interval, notes });
+            modalEditCheckup.style.display = 'none';
+            renderCheckups();
+            renderDashboard();
+            showToast('success', 'Checkup Updated', 'The checkup record has been updated.');
+        } catch (err) {
+            showToast('error', 'Error', err.message);
+        }
+    });
 
     // ==================== NEARBY HOSPITALS (LIVE) ====================
     let userLocation = null;

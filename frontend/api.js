@@ -150,11 +150,35 @@ const API = (() => {
         localStorage.setItem('medvault_documents', JSON.stringify(docs));
     }
 
+    async function updateDocument(id, data) {
+        const updated = await request('PUT', `/documents/${id}`, data);
+        let docs = JSON.parse(localStorage.getItem('medvault_documents') || '[]');
+        docs = docs.map(d => (d._id === id) ? { ...d, ...updated } : d);
+        localStorage.setItem('medvault_documents', JSON.stringify(docs));
+        return updated;
+    }
+
+    async function updateMedicine(id, data) {
+        const updated = await request('PUT', `/medicines/${id}`, data);
+        let meds = JSON.parse(localStorage.getItem('medvault_medicines') || '[]');
+        meds = meds.map(m => (m._id === id) ? updated : m);
+        localStorage.setItem('medvault_medicines', JSON.stringify(meds));
+        return updated;
+    }
+
+    async function updateCheckup(id, data) {
+        const updated = await request('PUT', `/checkups/${id}`, data);
+        let checkups = JSON.parse(localStorage.getItem('medvault_checkups') || '[]');
+        checkups = checkups.map(c => (c._id === id) ? updated : c);
+        localStorage.setItem('medvault_checkups', JSON.stringify(checkups));
+        return updated;
+    }
+
     return {
         isLoggedIn, getToken, getUser, setUser,
         register, verify, resendCode, login, logout, syncAll,
-        addMedicine, deleteMedicine, takeDose, restockMedicine,
-        addCheckup, deleteCheckup,
-        addDocument, getDocument, deleteDocument
+        addMedicine, deleteMedicine, takeDose, restockMedicine, updateMedicine,
+        addCheckup, deleteCheckup, updateCheckup,
+        addDocument, getDocument, deleteDocument, updateDocument
     };
 })();

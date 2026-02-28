@@ -2051,6 +2051,14 @@ body::after {
     align-items: center;
 }
 
+/* ==================== DISABLED INPUT ==================== */
+.input-disabled {
+    background: rgba(255,255,255,0.05) !important;
+    color: rgba(255,255,255,0.4) !important;
+    cursor: not-allowed;
+    border-color: rgba(255,255,255,0.1) !important;
+}
+
 /* ==================== MEDICINE REMINDER BANNER ==================== */
 .med-reminder-banner {
     position: fixed;

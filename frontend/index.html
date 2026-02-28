@@ -528,6 +528,158 @@
     </div>
 
     <!-- ==================== TOAST CONTAINER ==================== -->
+
+    <!-- Edit Document Modal -->
+    <div id="modalEditDoc" class="modal" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-pen-to-square"></i> Edit Document</h3>
+                <button id="closeEditDocModal" class="modal-close"><i class="fas fa-xmark"></i></button>
+            </div>
+            <form id="formEditDoc">
+                <input type="hidden" id="editDocId">
+                <div class="form-group">
+                    <label>Document Name</label>
+                    <input type="text" id="editDocName" required>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="editDocCategory" required>
+                        <option value="prescription">Prescription</option>
+                        <option value="lab_report">Lab Report</option>
+                        <option value="discharge">Discharge Summary</option>
+                        <option value="imaging">Imaging (X-ray, MRI)</option>
+                        <option value="insurance">Insurance</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="editDocDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Notes (optional)</label>
+                    <textarea id="editDocNotes"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancelEditDoc" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Medicine Modal (restricted: no name change) -->
+    <div id="modalEditMed" class="modal" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-pen-to-square"></i> Edit Medicine</h3>
+                <button id="closeEditMedModal" class="modal-close"><i class="fas fa-xmark"></i></button>
+            </div>
+            <form id="formEditMed">
+                <input type="hidden" id="editMedId">
+                <div class="form-group">
+                    <label>Medicine Name</label>
+                    <input type="text" id="editMedName" disabled class="input-disabled">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Dosage</label>
+                        <input type="text" id="editMedDosage" required placeholder="e.g. 500mg">
+                    </div>
+                    <div class="form-group">
+                        <label>Frequency (per day)</label>
+                        <select id="editMedFrequency" required>
+                            <option value="1">Once daily</option>
+                            <option value="2">Twice daily</option>
+                            <option value="3">Three times</option>
+                            <option value="4">Four times</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="editScheduleTimes" class="schedule-times"></div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Total Quantity</label>
+                        <input type="number" id="editMedQuantity" required min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Instruction</label>
+                        <select id="editMedInstruction">
+                            <option value="anytime">Any time</option>
+                            <option value="before_food">Before Food</option>
+                            <option value="after_food">After Food</option>
+                            <option value="with_food">With Food</option>
+                            <option value="empty_stomach">Empty Stomach</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Side Effects (optional)</label>
+                    <input type="text" id="editMedSideEffects">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancelEditMed" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Checkup Modal -->
+    <div id="modalEditCheckup" class="modal" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-pen-to-square"></i> Edit Checkup</h3>
+                <button id="closeEditCheckupModal" class="modal-close"><i class="fas fa-xmark"></i></button>
+            </div>
+            <form id="formEditCheckup">
+                <input type="hidden" id="editCheckupId">
+                <div class="form-group">
+                    <label>Checkup Type</label>
+                    <select id="editCheckupType" required>
+                        <option value="general">General Checkup</option>
+                        <option value="dental">Dental</option>
+                        <option value="eye">Eye / Vision</option>
+                        <option value="cardio">Cardiology</option>
+                        <option value="derma">Dermatology</option>
+                        <option value="ortho">Orthopedic</option>
+                        <option value="gynec">Gynecology</option>
+                        <option value="ent">ENT</option>
+                        <option value="neuro">Neurology</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Doctor Name (optional)</label>
+                    <input type="text" id="editCheckupDoctor">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Last Visit Date</label>
+                        <input type="date" id="editCheckupDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Repeat Interval (days)</label>
+                        <select id="editCheckupInterval">
+                            <option value="30">Monthly (30 days)</option>
+                            <option value="90">Quarterly (90 days)</option>
+                            <option value="180">6 Months</option>
+                            <option value="365">Yearly</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Notes (optional)</label>
+                    <textarea id="editCheckupNotes"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancelEditCheckup" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
     <div id="toastContainer" class="toast-container"></div>
 
     <!-- ==================== MEDBOT FAB ==================== -->

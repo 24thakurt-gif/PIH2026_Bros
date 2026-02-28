@@ -53,4 +53,20 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+// PUT /api/documents/:id – Update (metadata only, not file)
+router.put('/:id', async (req, res) => {
+    try {
+        const { title, category, date, notes } = req.body;
+        const doc = await Document.findOneAndUpdate(
+            { _id: req.params.id, userId: req.user.id },
+            { title, category, date, notes },
+            { new: true }
+        ).select('-fileData');
+        if (!doc) return res.status(404).json({ error: 'Document not found.' });
+        res.json(doc);
+    } catch (err) {
+        res.status(400).json({ error: 'Failed to update document.' });
+    }
+});
+
 module.exports = router;
