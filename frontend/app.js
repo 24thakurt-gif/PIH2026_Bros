@@ -249,6 +249,7 @@
         // Re-render page data
         if (pageId === 'dashboard') renderDashboard();
         if (pageId === 'stock') renderStock();
+        if (pageId === 'hospitals' && !userLocation) detectLocation();
     }
 
     navLinks.forEach(link => {
@@ -533,7 +534,6 @@
     function renderDocuments() {
         const docs = loadData(STORAGE_KEYS.documents);
         const grid = document.getElementById('documentsGrid');
-        const empty = document.getElementById('emptyDocs');
 
         let filtered = docs;
         if (activeDocFilter !== 'all') {
@@ -544,9 +544,12 @@
         }
 
         if (docs.length === 0) {
-            grid.innerHTML = '';
-            grid.appendChild(empty);
-            empty.style.display = '';
+            grid.innerHTML = `<div id="emptyDocs" class="empty-state">
+                <i class="fas fa-folder-open"></i>
+                <h3>No Documents Yet</h3>
+                <p>Upload your first medical document to get started.</p>
+                <button id="btnUploadDocEmpty" class="btn btn-primary" onclick="document.getElementById('modalUploadDoc').style.display='flex'"><i class="fas fa-cloud-arrow-up"></i> Upload Document</button>
+            </div>`;
             return;
         }
 
@@ -555,7 +558,6 @@
             return;
         }
 
-        empty.style.display = 'none';
         grid.innerHTML = filtered.sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date)).map(doc => `
             <div class="doc-card" data-id="${doc.id}">
                 <div class="doc-card-top">
@@ -676,16 +678,17 @@
     function renderMedicines() {
         const meds = loadData(STORAGE_KEYS.medicines);
         const list = document.getElementById('medicinesList');
-        const empty = document.getElementById('emptyMeds');
 
         if (meds.length === 0) {
-            list.innerHTML = '';
-            list.appendChild(empty);
-            empty.style.display = '';
+            list.innerHTML = `<div id="emptyMeds" class="empty-state">
+                <i class="fas fa-pills"></i>
+                <h3>No Medicines Added</h3>
+                <p>Add your prescribed medicines to start tracking.</p>
+                <button id="btnAddMedEmpty" class="btn btn-primary" onclick="document.getElementById('modalAddMed').style.display='flex'"><i class="fas fa-plus"></i> Add Medicine</button>
+            </div>`;
             return;
         }
 
-        empty.style.display = 'none';
         list.innerHTML = meds.map(med => `
             <div class="med-card" data-id="${med.id}">
                 <div class="med-card-header">
@@ -866,16 +869,17 @@
     function renderCheckups() {
         const checkups = loadData(STORAGE_KEYS.checkups);
         const list = document.getElementById('checkupsList');
-        const empty = document.getElementById('emptyCheckups');
 
         if (checkups.length === 0) {
-            list.innerHTML = '';
-            list.appendChild(empty);
-            empty.style.display = '';
+            list.innerHTML = `<div id="emptyCheckups" class="empty-state">
+                <i class="fas fa-calendar-check"></i>
+                <h3>No Checkups Tracked</h3>
+                <p>Add your routine checkups to get smart reminders.</p>
+                <button id="btnAddCheckupEmpty" class="btn btn-primary" onclick="document.getElementById('modalAddCheckup').style.display='flex'"><i class="fas fa-plus"></i> Add Checkup</button>
+            </div>`;
             return;
         }
 
-        empty.style.display = 'none';
         list.innerHTML = checkups.map(c => {
             const nextDate = new Date(c.lastDate);
             nextDate.setDate(nextDate.getDate() + c.interval);
@@ -1008,13 +1012,9 @@
     }
 
     function setLocationStatus(state, text) {
+        locationStatusBar.style.display = '';
         locationStatusBar.className = 'location-status-bar ' + state;
         locationStatusText.textContent = text;
-        const icon = locationStatusBar.querySelector('.location-status-icon i');
-        if (state === 'detecting') icon.className = 'fas fa-spinner';
-        else if (state === 'located') icon.className = 'fas fa-check-circle';
-        else if (state === 'error') icon.className = 'fas fa-exclamation-circle';
-        else icon.className = 'fas fa-location-dot';
     }
 
     function showMap(lat, lng) {
