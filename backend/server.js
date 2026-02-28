@@ -26,6 +26,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/medicines', require('./routes/medicines'));
 app.use('/api/checkups', require('./routes/checkups'));
 app.use('/api/documents', require('./routes/documents'));
+app.use('/api/notifications', require('./routes/notifications'));
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -38,6 +39,11 @@ const PORT = process.env.PORT || 5000;
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {
         console.log('✅ Connected to MongoDB');
+
+        // Start daily email scheduler
+        const { startScheduler } = require('./utils/scheduler');
+        startScheduler();
+
         app.listen(PORT, () => {
             console.log(`🚀 MedVault server running on http://localhost:${PORT}`);
         });

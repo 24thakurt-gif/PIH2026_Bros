@@ -174,11 +174,21 @@ const API = (() => {
         return updated;
     }
 
+    // ---- Notifications (Email) ----
+    async function sendMedicineReminderEmail(medicines) {
+        return request('POST', '/notifications/medicine-reminder', { medicines });
+    }
+
+    async function sendLowStockEmail(medicines) {
+        return request('POST', '/notifications/low-stock', { medicines });
+    }
+
     return {
         isLoggedIn, getToken, getUser, setUser,
         register, verify, resendCode, login, logout, syncAll,
         addMedicine, deleteMedicine, takeDose, restockMedicine, updateMedicine,
         addCheckup, deleteCheckup, updateCheckup,
-        addDocument, getDocument, deleteDocument, updateDocument
+        addDocument, getDocument, deleteDocument, updateDocument,
+        sendMedicineReminderEmail, sendLowStockEmail
     };
 })();

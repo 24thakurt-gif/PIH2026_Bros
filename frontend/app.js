@@ -1447,17 +1447,25 @@
         }
     }
 
+    // Track which email alerts already sent today so we don't spam
+    const emailedReminders = new Set();
+    const emailedLowStock = new Set();
+
     function checkMedicineReminders() {
         const meds = loadData(STORAGE_KEYS.medicines);
         if (meds.length === 0) return;
 
         const now = new Date();
         const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        const todayKey = now.toDateString();
+
+        // Collect medicines due right now for a single email
+        const dueMedsForEmail = [];
 
         meds.forEach(med => {
             const medId = med._id || med.id;
             (med.times || []).forEach(time => {
-                const key = `${medId}_${time}_${now.toDateString()}`;
+                const key = `${medId}_${time}_${todayKey}`;
                 if (time === currentTime && !firedReminders.has(key)) {
                     firedReminders.add(key);
                     const remaining = med.totalQuantity - med.dosesTaken;
@@ -1468,7 +1476,6 @@
 
                     // Show top banner notification
                     if (reminderBanner.style.display !== 'none' && reminderBanner.style.display !== '') {
-                        // Banner already showing another med, queue this one
                         pendingReminders.push({ med, medId });
                     } else {
                         showReminderBanner(med, medId);
@@ -1481,9 +1488,50 @@
                             icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💊</text></svg>'
                         });
                     }
+
+                    // Collect for email
+                    const emailKey = `${medId}_${time}_${todayKey}`;
+                    if (!emailedReminders.has(emailKey)) {
+                        emailedReminders.add(emailKey);
+                        dueMedsForEmail.push({
+                            name: med.name,
+                            dosage: med.dosage,
+                            time: formatTime12(time),
+                            instruction: formatInstruction(med.instruction)
+                        });
+                    }
                 }
             });
         });
+
+        // Send a single email for all medicines due at this time
+        if (dueMedsForEmail.length > 0) {
+            API.sendMedicineReminderEmail(dueMedsForEmail).catch(() => {});
+        }
+
+        // Check for low stock and send email (once per day per medicine)
+        checkAndSendLowStockEmail(meds, todayKey);
+    }
+
+    function checkAndSendLowStockEmail(meds, todayKey) {
+        const lowStockMeds = [];
+        meds.forEach(med => {
+            const medId = med._id || med.id;
+            const remaining = med.totalQuantity - med.dosesTaken;
+            const percent = (remaining / med.totalQuantity) * 100;
+            const emailKey = `lowstock_${medId}_${todayKey}`;
+            if (percent <= 20 && remaining > 0 && !emailedLowStock.has(emailKey)) {
+                emailedLowStock.add(emailKey);
+                lowStockMeds.push({
+                    name: med.name,
+                    remaining: remaining,
+                    total: med.totalQuantity
+                });
+            }
+        });
+        if (lowStockMeds.length > 0) {
+            API.sendLowStockEmail(lowStockMeds).catch(() => {});
+        }
     }
 
     // Check every minute
