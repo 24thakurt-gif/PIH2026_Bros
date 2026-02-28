@@ -432,7 +432,7 @@
     const removeFileBtn = document.getElementById('removeFile');
 
     function openUploadModal() {
-        modalUploadDoc.classList.add('active');
+        modalUploadDoc.style.display = 'flex';
         formUploadDoc.reset();
         selectedFile = null;
         fileSelectedEl.style.display = 'none';
@@ -441,7 +441,7 @@
     }
 
     function closeUploadModalFn() {
-        modalUploadDoc.classList.remove('active');
+        modalUploadDoc.style.display = 'none';
     }
 
     btnUploadDoc.addEventListener('click', openUploadModal);
@@ -615,13 +615,13 @@
     const scheduleTimes = document.getElementById('scheduleTimes');
 
     function openMedModal() {
-        modalAddMed.classList.add('active');
+        modalAddMed.style.display = 'flex';
         formAddMed.reset();
         scheduleTimes.innerHTML = '';
     }
 
     function closeMedModalFn() {
-        modalAddMed.classList.remove('active');
+        modalAddMed.style.display = 'none';
     }
 
     btnAddMed.addEventListener('click', openMedModal);
@@ -828,12 +828,12 @@
     const formAddCheckup = document.getElementById('formAddCheckup');
 
     function openCheckupModal() {
-        modalAddCheckup.classList.add('active');
+        modalAddCheckup.style.display = 'flex';
         formAddCheckup.reset();
     }
 
     function closeCheckupModalFn() {
-        modalAddCheckup.classList.remove('active');
+        modalAddCheckup.style.display = 'none';
     }
 
     btnAddCheckup.addEventListener('click', openCheckupModal);
