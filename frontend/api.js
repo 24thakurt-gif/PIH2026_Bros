@@ -43,17 +43,8 @@ const API = (() => {
     // ==================== AUTH ====================
     async function register(name, email, password) {
         const data = await request('POST', '/auth/register', { name, email, password });
-        return data; // returns needsVerification: true
-    }
-
-    async function verify(email, code) {
-        const data = await request('POST', '/auth/verify', { email, code });
         setToken(data.token); setUser(data.user);
         return data;
-    }
-
-    async function resendCode(email) {
-        return request('POST', '/auth/resend-code', { email });
     }
 
     async function login(email, password) {
@@ -185,7 +176,7 @@ const API = (() => {
 
     return {
         isLoggedIn, getToken, getUser, setUser,
-        register, verify, resendCode, login, logout, syncAll,
+        register, login, logout, syncAll,
         addMedicine, deleteMedicine, takeDose, restockMedicine, updateMedicine,
         addCheckup, deleteCheckup, updateCheckup,
         addDocument, getDocument, deleteDocument, updateDocument,

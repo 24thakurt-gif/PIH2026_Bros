@@ -17,7 +17,7 @@ function startScheduler() {
 
 async function sendCheckupReminders() {
     try {
-        const users = await User.find({ verified: true });
+        const users = await User.find();
 
         for (const user of users) {
             const checkups = await Checkup.find({ userId: user._id });
@@ -59,7 +59,7 @@ async function sendCheckupReminders() {
 
 async function sendDailyLowStockAlerts() {
     try {
-        const users = await User.find({ verified: true });
+        const users = await User.find();
 
         for (const user of users) {
             const medicines = await Medicine.find({ userId: user._id });

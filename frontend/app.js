@@ -79,12 +79,7 @@
             initApp();
             showToast('success', 'Welcome Back!', 'You are now logged in.');
         } catch (err) {
-            if (err.needsVerification) {
-                showVerifyForm(document.getElementById('loginEmail').value.trim());
-                showAuthError('Please verify your email before logging in.');
-            } else {
-                showAuthError(err.message);
-            }
+            showAuthError(err.message);
         }
     });
 
@@ -95,77 +90,14 @@
         const password = document.getElementById('registerPassword').value;
         if (!name || !email || !password) return;
         try {
-            const data = await API.register(name, email, password);
-            if (data.needsVerification) {
-                // Show verification form
-                showVerifyForm(email, data._devCode);
-            }
-        } catch (err) {
-            showAuthError(err.message);
-        }
-    });
-
-    // Verification form handling
-    const verifyForm = document.getElementById('verifyForm');
-    const verifyEmailDisplay = document.getElementById('verifyEmailDisplay');
-    const resendCodeBtn = document.getElementById('resendCodeBtn');
-    const backToRegister = document.getElementById('backToRegister');
-    let pendingVerifyEmail = '';
-
-    function showVerifyForm(email, devCode) {
-        pendingVerifyEmail = email;
-        if (loginForm) loginForm.style.display = 'none';
-        if (registerForm) registerForm.style.display = 'none';
-        if (verifyForm) verifyForm.style.display = '';
-        if (verifyEmailDisplay) verifyEmailDisplay.textContent = email;
-        if (authError) authError.style.display = 'none';
-        document.querySelector('.auth-tabs').style.display = 'none';
-        if (devCode) {
-            showToast('info', 'Verification Code', 'Your code: ' + devCode);
-        }
-    }
-
-    function hideVerifyForm() {
-        if (verifyForm) verifyForm.style.display = 'none';
-        document.querySelector('.auth-tabs').style.display = '';
-    }
-
-    if (verifyForm) verifyForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const code = document.getElementById('verifyCode').value.trim();
-        if (!code || !pendingVerifyEmail) return;
-        try {
-            await API.verify(pendingVerifyEmail, code);
+            await API.register(name, email, password);
             await API.syncAll();
-            hideVerifyForm();
             hideAuth();
             initApp();
-            showToast('success', 'Email Verified!', 'Welcome to MedVault!');
+            showToast('success', 'Account Created!', 'Welcome to MedVault!');
         } catch (err) {
             showAuthError(err.message);
         }
-    });
-
-    if (resendCodeBtn) resendCodeBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        if (!pendingVerifyEmail) return;
-        try {
-            const data = await API.resendCode(pendingVerifyEmail);
-            showToast('info', 'Code Resent', 'Check your email for the new code.');
-            if (data._devCode) {
-                showToast('info', 'Verification Code', 'Your code: ' + data._devCode);
-            }
-        } catch (err) {
-            showAuthError(err.message);
-        }
-    });
-
-    if (backToRegister) backToRegister.addEventListener('click', (e) => {
-        e.preventDefault();
-        hideVerifyForm();
-        if (registerForm) registerForm.style.display = '';
-        if (authRegisterTab) authRegisterTab.classList.add('active');
-        if (authLoginTab) authLoginTab.classList.remove('active');
     });
 
     if (logoutBtn) logoutBtn.addEventListener('click', () => {

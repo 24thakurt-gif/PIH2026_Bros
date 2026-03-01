@@ -4,10 +4,7 @@ const bcrypt = require('bcryptjs');
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    password: { type: String, required: true, minlength: 6 },
-    verified: { type: Boolean, default: false },
-    verifyCode: { type: String, default: '' },
-    verifyExpires: { type: Date, default: null }
+    password: { type: String, required: true, minlength: 6 }
 }, { timestamps: true });
 
 // Hash password before saving
@@ -26,8 +23,6 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
 userSchema.methods.toJSON = function () {
     const obj = this.toObject();
     delete obj.password;
-    delete obj.verifyCode;
-    delete obj.verifyExpires;
     return obj;
 };
 
